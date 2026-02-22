@@ -49,15 +49,35 @@ if [ ! -f "$SSL_CERT_FILE" ]; then
     exit 1
 fi
 
+PID_FILE="$PROJECT_DIR/llama-server.pid"
+LOG_FILE="$PROJECT_DIR/llama-server.log"
+
+# Check if already running
+if [ -f "$PID_FILE" ]; then
+    OLD_PID="$(cat "$PID_FILE")"
+    if kill -0 "$OLD_PID" 2>/dev/null; then
+        echo "Error: llama-server is already running (PID $OLD_PID)" >&2
+        echo "Run ./stop.sh first." >&2
+        exit 1
+    fi
+    rm -f "$PID_FILE"
+fi
+
 echo "Starting llama-server..."
 echo "  Model:  $MODEL_PATH"
 echo "  Listen: https://${HOST}:${PORT}"
-echo ""
+echo "  Log:    $LOG_FILE"
 
-exec llama-server \
+nohup llama-server \
     -m "$MODEL_PATH" \
     --host "${HOST}" \
     --port "${PORT}" \
     --ssl-cert-file "$SSL_CERT_FILE" \
     --ssl-key-file "$SSL_KEY_FILE" \
-    -ngl "${GPU_LAYERS:--1}"
+    -ngl "${GPU_LAYERS:--1}" \
+    > "$LOG_FILE" 2>&1 &
+
+echo $! > "$PID_FILE"
+echo "  PID:    $(cat "$PID_FILE")"
+echo ""
+echo "Started. Use ./stop.sh to stop."

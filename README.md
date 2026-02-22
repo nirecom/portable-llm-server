@@ -54,11 +54,14 @@ cp .env.example .env
 vi .env  # Set MODEL_PATH to the LM Studio model location
 ```
 
-### 5. Start
+### 5. Start / Stop
 
 ```bash
-./start.sh
+./start.sh       # start in background
+./stop.sh        # stop
 ```
+
+Logs are written to `llama-server.log` in the project directory.
 
 ## Verify
 
@@ -84,5 +87,8 @@ Any OpenAI-compatible client can connect using this URL.
 | `.env.example` | ✅ | Template with placeholders |
 | `.env` | ❌ | Actual config (secrets) |
 | `certs/` | ❌ | TLS certificates (machine-specific) |
-| `start.sh` | ✅ | Server startup |
+| `start.sh` | ✅ | Start server in background |
+| `stop.sh` | ✅ | Stop server |
 | `setup-certs.sh` | ✅ | Certificate generation helper |
+| `*.pid` | ❌ | Runtime PID file |
+| `*.log` | ❌ | Runtime log file |
