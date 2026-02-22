@@ -63,8 +63,17 @@ if [ -f "$PID_FILE" ]; then
     rm -f "$PID_FILE"
 fi
 
+# Build optional arguments
+EXTRA_ARGS=()
+if [ -n "${MODEL_ALIAS:-}" ]; then
+    EXTRA_ARGS+=(--alias "$MODEL_ALIAS")
+fi
+
 echo "Starting llama-server..."
 echo "  Model:  $MODEL_PATH"
+if [ -n "${MODEL_ALIAS:-}" ]; then
+    echo "  Alias:  $MODEL_ALIAS"
+fi
 echo "  Listen: https://${HOST}:${PORT}"
 echo "  Log:    $LOG_FILE"
 
@@ -75,6 +84,7 @@ nohup llama-server \
     --ssl-cert-file "$SSL_CERT_FILE" \
     --ssl-key-file "$SSL_KEY_FILE" \
     -ngl "${GPU_LAYERS:--1}" \
+    "${EXTRA_ARGS[@]}" \
     > "$LOG_FILE" 2>&1 &
 
 echo $! > "$PID_FILE"
