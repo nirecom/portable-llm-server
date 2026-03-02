@@ -84,6 +84,8 @@ nohup llama-server \
     --ssl-cert-file "$SSL_CERT_FILE" \
     --ssl-key-file "$SSL_KEY_FILE" \
     -ngl "${GPU_LAYERS:--1}" \
+    --parallel "${PARALLEL:-1}" \
+    --ctx-size "${CTX_SIZE:-4096}" \
     "${EXTRA_ARGS[@]}" \
     > "$LOG_FILE" 2>&1 &
 
