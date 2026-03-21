@@ -4,8 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Portable llama-server configuration for LLM inference (currently MacBook M4 Pro).
-Runs as a Judge model backend for the LangChain LLM-as-a-Judge system.
+Portable llama-swap configuration for multi-model LLM inference (currently MacBook M4 Pro).
+Serves as Judge + Reasoner backend via llama-swap with TLS, accessed by LiteLLM proxy.
 
 ## LangChain Project: Phase Workflow
 

@@ -1,17 +1,27 @@
 #!/bin/bash
-# Start llama-server with HTTPS.
+# Start llama-swap with HTTPS.
 # Usage: ./start.sh
 
 set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Check llama-server is installed
+# Check llama-swap is installed
+if ! command -v llama-swap &>/dev/null; then
+    echo "Error: llama-swap not found." >&2
+    case "$(uname -s)" in
+        Darwin) echo "Install with: brew install mostlygeek/llama-swap/llama-swap" >&2 ;;
+        *) echo "Download from: https://github.com/mostlygeek/llama-swap/releases" >&2 ;;
+    esac
+    exit 1
+fi
+
+# Check llama-server is installed (used by llama-swap to run models)
 if ! command -v llama-server &>/dev/null; then
     echo "Error: llama-server not found." >&2
     case "$(uname -s)" in
-        Darwin|Linux) echo "Install with: brew install llama.cpp" >&2 ;;
-        MINGW*|MSYS*|CYGWIN*) echo "Download from: https://github.com/ggml-org/llama.cpp/releases" >&2 ;;
+        Darwin) echo "Install with: brew install llama.cpp" >&2 ;;
+        *) echo "Download from: https://github.com/ggml-org/llama.cpp/releases" >&2 ;;
     esac
     exit 1
 fi
@@ -30,18 +40,6 @@ set +a
 # Resolve paths relative to project directory
 SSL_CERT_FILE="$PROJECT_DIR/${SSL_CERT_FILE#./}"
 SSL_KEY_FILE="$PROJECT_DIR/${SSL_KEY_FILE#./}"
-MODEL_PATH="${MODEL_PATH/#\~/$HOME}"
-
-# Validate required values
-if [ -z "${MODEL_PATH:-}" ]; then
-    echo "Error: MODEL_PATH is not set in .env" >&2
-    exit 1
-fi
-
-if [ ! -f "$MODEL_PATH" ]; then
-    echo "Error: Model file not found: $MODEL_PATH" >&2
-    exit 1
-fi
 
 if [ ! -f "$SSL_CERT_FILE" ]; then
     echo "Error: SSL cert not found: $SSL_CERT_FILE" >&2
@@ -49,44 +47,37 @@ if [ ! -f "$SSL_CERT_FILE" ]; then
     exit 1
 fi
 
-PID_FILE="$PROJECT_DIR/llama-server.pid"
-LOG_FILE="$PROJECT_DIR/llama-server.log"
+CONFIG_FILE="$PROJECT_DIR/config.yaml"
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Error: config.yaml not found." >&2
+    exit 1
+fi
+
+PID_FILE="$PROJECT_DIR/llama-swap.pid"
+LOG_FILE="$PROJECT_DIR/llama-swap.log"
 
 # Check if already running
 if [ -f "$PID_FILE" ]; then
     OLD_PID="$(cat "$PID_FILE")"
     if kill -0 "$OLD_PID" 2>/dev/null; then
-        echo "Error: llama-server is already running (PID $OLD_PID)" >&2
+        echo "Error: llama-swap is already running (PID $OLD_PID)" >&2
         echo "Run ./stop.sh first." >&2
         exit 1
     fi
     rm -f "$PID_FILE"
 fi
 
-# Build optional arguments
-EXTRA_ARGS=()
-if [ -n "${MODEL_ALIAS:-}" ]; then
-    EXTRA_ARGS+=(--alias "$MODEL_ALIAS")
-fi
-
-echo "Starting llama-server..."
-echo "  Model:  $MODEL_PATH"
-if [ -n "${MODEL_ALIAS:-}" ]; then
-    echo "  Alias:  $MODEL_ALIAS"
-fi
+echo "Starting llama-swap..."
+echo "  Config: $CONFIG_FILE"
 echo "  Listen: https://${HOST}:${PORT}"
 echo "  Log:    $LOG_FILE"
 
-nohup llama-server \
-    -m "$MODEL_PATH" \
-    --host "${HOST}" \
-    --port "${PORT}" \
-    --ssl-cert-file "$SSL_CERT_FILE" \
-    --ssl-key-file "$SSL_KEY_FILE" \
-    -ngl "${GPU_LAYERS:--1}" \
-    --parallel "${PARALLEL:-1}" \
-    --ctx-size "${CTX_SIZE:-4096}" \
-    "${EXTRA_ARGS[@]}" \
+nohup llama-swap \
+    -config "$CONFIG_FILE" \
+    -listen "${HOST}:${PORT}" \
+    -tls-cert-file "$SSL_CERT_FILE" \
+    -tls-key-file "$SSL_KEY_FILE" \
+    -watch-config \
     > "$LOG_FILE" 2>&1 &
 
 echo $! > "$PID_FILE"
