@@ -1,5 +1,10 @@
 # portable-llm-server history
 
+### Fix ${HOME} macro for llama-swap v198
+
+Background: llama-swap v198 では `${HOME}` が未知のマクロとしてエラーになる。`${PORT}` は内蔵マクロだが、シェル環境変数は `${env.VAR}` 構文が必要。
+Changes: config.yaml の `${HOME}` → `${env.HOME}` に修正。
+
 ### Reasoner model selection for Mac M4 Pro 24GB (aea5fad)
 
 Background: llama-swap migration で Reasoner モデルを選定。当初 Qwen3.5-27B-Q4_K_M (unsloth) を予定していたが、M4 Pro 24GB のメモリ制約により断念し Qwen3-14B-Q4_K_M に変更。

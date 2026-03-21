@@ -1,6 +1,7 @@
 #!/bin/bash
 # Integration tests for llama-swap multi-model configuration.
 # Requires llama-swap to be running (./start.sh).
+# Verified with llama-swap v198 (${env.HOME} macro syntax).
 
 set -euo pipefail
 
