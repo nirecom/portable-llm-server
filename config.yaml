@@ -2,32 +2,22 @@ healthCheckTimeout: 120
 logLevel: info
 models:
   Qwen2.5-7B-Instruct-Q4_K_M:
-    cmd: |-
-      llama-server
-        --host 127.0.0.1 --port ${PORT}
-        --model ~/.cache/lm-studio/models/lmstudio-community/Qwen2.5-7B-Instruct-GGUF/Qwen2.5-7B-Instruct-Q4_K_M.gguf
-        --parallel 4 --ctx-size 16384
-        -ngl -1
+    cmd: llama-server --host 127.0.0.1 --port ${PORT} --model ${HOME}/.lmstudio/models/lmstudio-community/Qwen2.5-7B-Instruct-GGUF/Qwen2.5-7B-Instruct-Q4_K_M.gguf --parallel 4 --ctx-size 16384 -ngl -1
     proxy: http://127.0.0.1:${PORT}
     ttl: 600
-  Qwen3.5-27B-Q4_K_M:
-    cmd: |-
-      llama-server
-        --host 127.0.0.1 --port ${PORT}
-        --model ~/.cache/lm-studio/models/bartowski/Qwen3.5-27B-Q4_K_M-GGUF/Qwen3.5-27B-Q4_K_M.gguf
-        --ctx-size 4096 --flash-attn on --jinja
-        -ngl -1
+  Qwen3-14B-Q4_K_M:
+    cmd: llama-server --host 127.0.0.1 --port ${PORT} --model ${HOME}/.lmstudio/models/unsloth/Qwen3-14B-GGUF/Qwen3-14B-Q4_K_M.gguf --parallel 1 --ctx-size 8192 --jinja -ngl -1
     proxy: http://127.0.0.1:${PORT}
     ttl: 600
 groups:
-  heavy:
-    swap: true
-    exclusive: true
-    members:
-    - Qwen3.5-27B-Q4_K_M
-  forever:
+  judge:
     persistent: true
     swap: false
     exclusive: false
     members:
     - Qwen2.5-7B-Instruct-Q4_K_M
+  reasoner:
+    swap: true
+    exclusive: false
+    members:
+    - Qwen3-14B-Q4_K_M
