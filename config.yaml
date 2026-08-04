@@ -6,7 +6,7 @@ models:
     proxy: http://127.0.0.1:${PORT}
     ttl: 600
   Qwen3-14B-Q4_K_M:
-    cmd: llama-server --host 127.0.0.1 --port ${PORT} --model ${HOME}/.lmstudio/models/unsloth/Qwen3-14B-GGUF/Qwen3-14B-Q4_K_M.gguf --parallel 1 --ctx-size 200000 --jinja -ngl -1 -ctk q4_0 -ctv q4_0
+    cmd: llama-server --host 127.0.0.1 --port ${PORT} --model ${HOME}/.lmstudio/models/unsloth/Qwen3-14B-GGUF/Qwen3-14B-Q4_K_M.gguf --parallel 1 --ctx-size 200000 -ngl -1 -ctk q4_0 -ctv q4_0
     proxy: http://127.0.0.1:${PORT}
     ttl: 600
 groups:
