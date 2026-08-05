@@ -5,7 +5,7 @@ models:
     cmd: llama-server --host 127.0.0.1 --port ${PORT} --model ${env.HOME}/.lmstudio/models/lmstudio-community/Qwen2.5-7B-Instruct-GGUF/Qwen2.5-7B-Instruct-Q4_K_M.gguf --parallel 4 --ctx-size 16384 -ngl -1
     proxy: http://127.0.0.1:${PORT}
     ttl: 600
-  Qwen2.5-Coder-14B-Instruct-Q4_K_M:
+  Qwen3-14B-Q4_K_M:
     cmd: llama-server --host 127.0.0.1 --port ${PORT} --model ${env.HOME}/.lmstudio/models/lmstudio-community/Qwen3-14B-GGUF/Qwen3-14B-Q4_K_M.gguf --parallel 1 --ctx-size 200000 -ngl -1 -ctk q4_0 -ctv q4_0 --skip-chat-parsing
     proxy: http://127.0.0.1:${PORT}
     ttl: 600
@@ -20,4 +20,4 @@ groups:
     swap: true
     exclusive: false
     members:
-    - Qwen2.5-Coder-14B-Instruct-Q4_K_M
+    - Qwen3-14B-Q4_K_M
